@@ -6,15 +6,15 @@ This repository contains only the relevant lines of code necessary for a COOL Ja
 
 **lexer**
 
-Here a possible [COOL lexer version](https://github.com/lodeguns/Java-COOL-Compiler-/blob/master/lexer/cool.lex) human-view oriented.
+Here a possible [COOL lexer definition](https://github.com/lodeguns/Java-COOL-Compiler-/blob/master/lexer/cool.lex).
 
 **parser**
 
-Here a possible [COOL lexer version](https://github.com/lodeguns/Java-COOL-Compiler-/blob/master/lexer/cool.lex) human-view oriented.
+Here a possible [COOL parser definition](https://github.com/lodeguns/Java-COOL-Compiler-/blob/master/parser/cool.cup) in Java CUP with some important iussues for the look-ahead.
 
 **semant**
 
-Here a possible [COOL lexer version](https://github.com/lodeguns/Java-COOL-Compiler-/blob/master/lexer/cool.lex) human-view oriented.
+Here a possible [COOL semant definition](https://github.com/lodeguns/Java-COOL-Compiler-/blob/master/lexer/cool.lex) human-view oriented.
 
 **cgen**
 
