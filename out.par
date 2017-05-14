@@ -1,0 +1,202 @@
+#1
+_program
+  #1
+  _class
+    A
+    IO
+    "/home/lodeguns/Scrivania/Compilatori lab workspace/lpc/workspace/LEXER/src/0_good.cl"
+    (
+    #3
+    _attr
+      attr1
+      Int
+      #3
+      _int
+        5
+      : _no_type
+    #5
+    _method
+      pix
+      #5
+      _formal
+        m
+        Int
+      Int
+      #5
+      _block
+        #5
+        _dispatch
+          #5
+          _object
+            self
+          : _no_type
+          out_string
+          (
+          #5
+          _string
+            "Prova compilatori nella Classe A:: \n"
+          : _no_type
+          )
+        : _no_type
+        #6
+        _dispatch
+          #6
+          _object
+            self
+          : _no_type
+          out_int
+          (
+          #6
+          _object
+            m
+          : _no_type
+          )
+        : _no_type
+        #7
+        _dispatch
+          #7
+          _object
+            self
+          : _no_type
+          out_string
+          (
+          #7
+          _string
+            "\n"
+          : _no_type
+          )
+        : _no_type
+        #8
+        _object
+          m
+        : _no_type
+      : _no_type
+    )
+  #13
+  _class
+    Main
+    IO
+    "/home/lodeguns/Scrivania/Compilatori lab workspace/lpc/workspace/LEXER/src/0_good.cl"
+    (
+    #16
+    _attr
+      a
+      Int
+      #0
+      _no_expr
+      : _no_type
+    #18
+    _attr
+      b
+      A
+      #0
+      _no_expr
+      : _no_type
+    #25
+    _method
+      main
+      SELF_TYPE
+      #26
+      _block
+        #28
+        _block
+          #28
+          _assign
+            a
+            #28
+            _int
+              3
+            : _no_type
+          : _no_type
+          #30
+          _dispatch
+            #30
+            _object
+              self
+            : _no_type
+            pix
+            (
+            #30
+            _object
+              a
+            : _no_type
+            )
+          : _no_type
+          #33
+          _dispatch
+            #33
+            _object
+              b
+            : _no_type
+            pix
+            (
+            #33
+            _object
+              a
+            : _no_type
+            )
+          : _no_type
+          #37
+          _object
+            self
+          : _no_type
+        : _no_type
+      : _no_type
+    #44
+    _method
+      pix
+      #44
+      _formal
+        m
+        Int
+      Int
+      #44
+      _block
+        #44
+        _dispatch
+          #44
+          _object
+            self
+          : _no_type
+          out_string
+          (
+          #44
+          _string
+            "Prova compilatori nel Main:: \n"
+          : _no_type
+          )
+        : _no_type
+        #45
+        _dispatch
+          #45
+          _object
+            self
+          : _no_type
+          out_int
+          (
+          #45
+          _object
+            m
+          : _no_type
+          )
+        : _no_type
+        #46
+        _dispatch
+          #46
+          _object
+            self
+          : _no_type
+          out_string
+          (
+          #46
+          _string
+            "\n"
+          : _no_type
+          )
+        : _no_type
+        #47
+        _object
+          m
+        : _no_type
+      : _no_type
+    )
