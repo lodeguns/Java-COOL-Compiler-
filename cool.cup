@@ -1,0 +1,541 @@
+    /*
+    * cool.cup
+    * Parser definition for the COOL language.
+    *
+    */
+
+    import java_cup.runtime.*;
+    import java.util.Stack;
+
+    /* Stuff enclosed in {: :} is copied verbatim to the class containing
+    all parser actions. All the extra variables/functions you want to use
+    in the semantic actions should go here. Don't remove or modify anything
+    that was there initially. */
+
+    action code {:
+
+    int curr_lineno() {
+    return ((CoolTokenLexer)parser.getScanner()).curr_lineno();
+    }
+
+    AbstractSymbol curr_filename() {
+    return ((CoolTokenLexer)parser.getScanner()).curr_filename();
+    }
+
+
+    String label = "";
+    int count = 0;
+
+	boolean counterror(String et1) throws Exception
+	{
+  	                
+	if(count > 2){
+          System.err.println("  et1: " + et1);
+          parser.report_error(" 3 errori trovati ","WRONG", " --> " + ((CoolTokenLexer)parser.getScanner()).yytext()  ); 
+  
+	   return false;
+	}
+	if(label.equals(et1))
+	{
+	   count++;
+	   
+	} else
+	{
+	label = et1;
+	count = 0;
+	
+	}
+	
+	
+	return true;
+	}
+	
+    Stack<Integer> curr_line = new Stack<Integer>();
+
+
+    boolean dot = false;
+
+
+    :}
+
+    /************************************************************************/
+    /* DONT CHANGE ANYTHING IN THIS SECTION */
+
+    parser code {:
+    int omerrs = 0;
+
+
+      public static Scanner s;
+      public static int errors = 0;
+
+    
+      public void report_error(String message, Object info, String cur_token_a ) throws Exception{
+
+          /* Attempt to recover from a syntax error. This returns false if 
+             recovery fails, true if it succeeds. Recovery happens in 4 steps. 
+             First we pop the parse stack down to a point at which we have a shift 
+             out of the top-most state on the error Symbol. This represents the 
+             initial error recovery configuration. If no such configuration is 
+             found, then we fail. Next a small number of "lookahead" or "parse ahead"
+             Symbols are read into a buffer. The size of this buffer is determined
+             by error_sync_size() and determines how many Symbols beyond the error 
+             must be matched to consider the recovery a success. 
+             Next, we begin to discard Symbols in attempt to get past the point of 
+             error to a point where we can continue parsing. After each Symbol, 
+             we attempt to "parse ahead" though the buffered lookahead Symbols. 
+             The "parse ahead" process simulates that actual parse, but does not 
+             modify the real parser's configuration, nor execute any actions. 
+             If we can parse all the stored Symbols without error, then the recovery
+             is considered a success. Once a successful recovery point is determined,
+             we do an actual parse over the stored input -- 
+             modifying the real parse configuration and executing all actions. 
+             Finally, we return the the normal parser to continue with the overall parse.
+          */
+
+            if (info instanceof String){
+	              errors++; 
+                  System.err.println("  "+ errors + "==> " + info + " "+ message + 
+					"\n current text to be matched yytext" + cur_token_a +"\n" + 
+                    "\n the current lookahead symbol " + Utilities.tokenToString(cur_token)    +"\n" + 
+                    "\n Error_sync_size lookahead[0] " + Utilities.tokenToString(lookahead[0]) +"\n" + 
+                    "\n Error_sync_size lookahead[1] " + Utilities.tokenToString(lookahead[1]) +"\n" + 
+                    "\n Error_sync_size lookahead[2] " + Utilities.tokenToString(lookahead[2]) +"\n"  );
+                     }
+
+            /* System.err.println("  "+ "  "+ "Error_sync_size number of tokens: " + error_sync_size());
+          
+            for (int i = 1; i < error_sync_size(); i++)
+            { 
+                System.err.println("  "+ "  "+ "move lookahead["+ i + "] = " +  lookahead[i].toString()
+                + " to lookahead[" + (i-1) + "] = " + lookahead[i-1].toString());
+                //lookahead[i-1] = lookahead[i];
+        
+             }
+                
+                System.err.println("  "+ "  "+ "lookahead["+ (error_sync_size()-1) + "] = " + cur_token.toString()
+                + " after curr_token is equal to [" + scan().toString() + "]");
+
+              */
+       }
+   
+      public void report_fatal_error(String message, Object info) {
+              report_error(message, info);
+              throw new RuntimeException("Fatal Syntax Error");
+              }
+
+    public void syntax_error(Symbol cur_token) {
+    	int lineno = action_obj.curr_lineno();
+    	String filename = action_obj.curr_filename().getString();
+    	System.err.print("\"" + filename + "\", line " + lineno +
+    	": syntax error at or near ");
+    	Utilities.printToken(cur_token);
+    	omerrs++;
+    	if (omerrs>50) {
+    		System.err.println("More than 50 errors");
+    		System.exit(1);
+    	}
+    }
+
+    public void unrecovered_syntax_error(Symbol cur_token) {
+    }
+
+    :}
+
+    /* Declare the terminals; a few have types for associated lexemes. The
+    token ERROR is never used in the parser; thus, it is a parse error when
+    the lexer returns it. */
+
+    terminal CLASS, ELSE, FI, IF, IN, INHERITS, LET, LET_STMT, LOOP, POOL, THEN, WHILE;
+    terminal CASE, ESAC, OF, DARROW, NEW, ISVOID;
+    terminal ASSIGN, NOT, LE, ERROR;
+    terminal PLUS, DIV, MINUS, MULT, EQ, LT, DOT, NEG, COMMA, SEMI, COLON;
+    terminal LPAREN, RPAREN, AT, LBRACE, RBRACE;
+    terminal AbstractSymbol STR_CONST, INT_CONST;
+    terminal Boolean BOOL_CONST;
+    terminal AbstractSymbol TYPEID, OBJECTID;
+
+    /* DON'T CHANGE ANYTHING ABOVE THIS LINE, OR YOUR PARSER WONT WORK */
+    /**************************************************************************/
+
+    /* Complete the nonterminal list below, giving a type for the semantic
+    value of each non terminal. (See the CUP documentation for details. */
+
+    nonterminal Program program;
+    nonterminal Classes class_list;
+    nonterminal Class_ class_c;
+    nonterminal Features dummy_feature_list;
+    nonterminal Formals formal_list;
+    nonterminal Feature feature;
+    nonterminal Expressions list_expr;
+    nonterminal Expression expr;
+    nonterminal Expressions block_list;
+    nonterminal Expression let_stmt_list,optional_initialization, object_in_expr;
+    nonterminal Cases case_list;
+    nonterminal Cases controlcase;
+    nonterminal Formal formal;
+    nonterminal Stack<Integer> count_line;
+    nonterminal Expression controlexpr;
+    nonterminal Expression control_dot;
+
+    /* Precedence declarations go here. Ricorda le precedenze si leggono al contrario.*/
+    precedence right ASSIGN;
+    precedence left NOT;
+    precedence nonassoc LE,LT,EQ;
+    precedence left PLUS,MINUS;
+    precedence left DIV,MULT;
+    precedence left ISVOID;
+    precedence left NEG;
+    precedence left AT;
+    precedence left DOT;
+    precedence left error;
+
+    start with program;  
+
+    program
+    ::= count_line:rows class_list:cl
+    {: RESULT = new programc(rows.pop(), cl); :}
+    | error class_list:cl
+    ;
+    
+ 
+ 	//currlinenostack
+ 	count_line::= {: curr_line.push(curr_lineno()); RESULT = curr_line; :}
+    ;
+ 
+ 
+    class_list ::= 
+    class_list:cl class_c:c SEMI 
+    {: RESULT = cl.appendElement(c); :}
+    |
+    class_list:cl error SEMI
+    {: RESULT = cl; :}
+    |
+    count_line:rows class_c:c SEMI 
+    {: RESULT = (new Classes(rows.pop())).appendElement(c); :}
+    |
+    count_line:rows error SEMI
+    {: RESULT = new Classes(rows.pop()); :}
+    ;
+
+
+    // SEMI dentro feature, non dentro class.
+    class_c
+    ::= count_line:rows CLASS TYPEID:n LBRACE dummy_feature_list:f RBRACE 
+    {: RESULT = new class_c(rows.pop(), n, 
+                            AbstractTable.idtable.addString("Object"),
+                            f, curr_filename()); :}                       
+    |
+    count_line:rows CLASS TYPEID:n INHERITS TYPEID:p LBRACE dummy_feature_list:f RBRACE
+    {: RESULT = new class_c(rows.pop(), n, p, f, curr_filename()); :}
+    ;
+
+
+
+
+
+
+    dummy_feature_list
+    ::=dummy_feature_list:fl feature:f SEMI
+    {: RESULT = fl.appendElement(f); :}
+    | /* empty */ count_line:rows
+    {: RESULT = new Features(rows.pop()); :}
+    |
+    error SEMI
+    {:if(counterror(((CoolTokenLexer)parser.getScanner()).yytext()))
+    		 {  RESULT = new Features(curr_lineno());}
+             else 
+    		 {  RESULT = new Features(curr_lineno());
+             /* oppure ; e basta */ } :}
+    |
+    dummy_feature_list:fl error SEMI
+    {:  if(counterror(((CoolTokenLexer)parser.getScanner()).yytext()))
+    		 { RESULT = fl;}
+    		 else 
+    		 { RESULT = fl;
+             /* oppure ; e basta */ }:}    ;
+
+    
+
+    feature
+    ::=
+    count_line:rows OBJECTID:o LPAREN formal_list:fl RPAREN COLON TYPEID:k LBRACE expr:e RBRACE
+    {: RESULT=new method(rows.pop(),o,fl,k,e); :}
+    |
+    count_line:rows OBJECTID:o LPAREN RPAREN COLON TYPEID:k LBRACE expr:e RBRACE
+    {: int row = rows.pop(); RESULT=new method(row,o,new Formals(row),k,e); :}
+    |
+    count_line:rows OBJECTID:o COLON TYPEID:j optional_initialization:oi
+    {: RESULT=new attr(rows.pop(),o,j,oi); :}
+    ;
+    
+    
+
+
+    formal_list
+    ::=formal_list:fl COMMA formal:f
+    {: RESULT = fl.appendElement(f); :}
+    |
+    count_line:rows formal:f
+    {: RESULT=(new Formals(rows.pop())).appendElement(f); :}
+    |
+    formal_list:fl COMMA error
+    {:if(counterror(((CoolTokenLexer)parser.getScanner()).yytext()))
+    		{ RESULT = fl;}
+    	    else 
+    		{ RESULT = fl;
+            /* oppure ; e basta */ }  :}
+    ;
+
+
+    formal
+    ::= count_line:rows OBJECTID:o COLON TYPEID:t
+    {: RESULT=new formalc(rows.pop(),o,t); :}
+    |
+    count_line:rows OBJECTID:o COLON error
+    {: if(counterror(((CoolTokenLexer)parser.getScanner()).yytext()))
+    		{ RESULT=new formalc(rows.pop(),o,null);}
+    		else 
+    		{ RESULT=new formalc(rows.pop(),o,null);
+            /* oppure ; e basta */ }   :};
+
+
+    //ObjectIdExpr
+    
+    object_in_expr
+        ::=
+    count_line:rows OBJECTID:o ASSIGN expr:e  {: RESULT = new assign(rows.pop(),o,e); :}
+    | 
+    control_dot:e OBJECTID:o LPAREN RPAREN
+    	{: int row = curr_line.pop(); dot = false; RESULT = new dispatch(row,e,o,new Expressions(row)); :}
+    |
+    control_dot:e OBJECTID:o LPAREN list_expr:le RPAREN
+   		{: dot =false; RESULT = new dispatch(curr_line.pop(),e,o,le); :}	
+    |
+    expr:e AT TYPEID:t DOT OBJECTID:o LPAREN count_line:rows RPAREN
+  		{: int row = rows.pop(); RESULT = new static_dispatch(row,e,t,o,new Expressions(row)); :} 		
+    |
+    expr:e AT TYPEID:t DOT OBJECTID:o LPAREN count_line:rows list_expr:le RPAREN
+   		{: RESULT = new static_dispatch(rows.pop(),e,t,o,le); :}
+    |
+    count_line:rows OBJECTID:o LPAREN list_expr:le RPAREN
+    	{: int row = rows.pop(); RESULT = new dispatch(row,new object(row,AbstractTable.idtable.addString("self")),o,le); :}	
+    |
+    count_line:rows OBJECTID:o LPAREN RPAREN
+    	{: int row = rows.pop(); RESULT = new dispatch(row,new object(row,AbstractTable.idtable.addString("self")),o,new Expressions(row)); :}
+    ;    
+    
+
+   
+    // Controllo sul Punto
+    control_dot ::= expr:e DOT
+    {: if(!dot) curr_line.push(curr_lineno()); else dot=true; RESULT=e; :}
+    ;
+    
+    expr
+    ::= object_in_expr:o {: RESULT = o; :}
+    |
+    count_line:rows IF expr:e THEN expr:g ELSE expr:h FI
+    {: RESULT = new cond(rows.pop(),e,g,h); :}
+    |
+    count_line:rows WHILE expr:e LOOP expr:g POOL
+    {: RESULT = new loop(rows.pop(),e,g); :}
+    |
+    count_line:rows LBRACE block_list:d RBRACE
+    {: RESULT = new block(rows.pop(),d); :}
+    |
+    LET let_stmt_list:le
+    {: RESULT = le; :}
+    |
+    count_line:rows CASE expr:e OF case_list:lc ESAC
+    {: RESULT=new typcase(rows.pop(),e,lc); :}
+    |
+    count_line:rows NEW TYPEID:t
+    {: RESULT = new new_(rows.pop(),t); :}
+    |
+    count_line:rows ISVOID expr:e
+    {: RESULT = new isvoid(rows.pop(),e); :}
+    |
+    expr:g PLUS count_line:rows expr:e
+    {: RESULT = new plus(rows.pop(),g,e); :}
+    |
+    expr:g MINUS count_line:rows expr:e
+    {: RESULT = new sub(rows.pop(),g,e); :}
+    |
+    expr:g MULT count_line:rows expr:e
+    {: RESULT = new mul(rows.pop(),g,e); :}
+    |
+    expr:g DIV count_line:rows expr:e
+    {: RESULT = new divide(rows.pop(),g,e); :}
+    |
+    count_line:rows NEG expr:e
+    {: RESULT = new neg(rows.pop(),e); :}
+    |
+    expr:g LT count_line:rows expr:e
+    {: RESULT = new lt(rows.pop(),g,e); :}
+    |
+    expr:g LE count_line:rows expr:e
+    {: RESULT = new leq(rows.pop(),g,e); :}
+    |
+    expr:g EQ count_line:rows expr:e
+    {: RESULT = new eq(rows.pop(),g,e); :}
+    |
+    count_line:rows NOT expr:e
+    {: RESULT = new comp(rows.pop(),e); :}
+    |
+    LPAREN expr:e RPAREN
+    {: RESULT=e; :}
+    |
+    count_line:rows OBJECTID:o
+    {: RESULT = new object(rows.pop(),o); :}
+    |
+    count_line:rows STR_CONST:s
+    {: RESULT = new string_const(rows.pop(),s); :}
+    |
+    count_line:rows INT_CONST:i
+    {: RESULT = new int_const(rows.pop(),i); :}
+    |
+    count_line:rows BOOL_CONST:b
+    {: RESULT= new bool_const(rows.pop(),b); :}
+    |
+    count_line:rows OBJECTID:fun LPAREN list_expr:le SEMI OBJECTID:var COLON TYPEID:typ optional_initialization:oi RPAREN    
+    {:
+       int r = rows.pop();
+       
+       int lexp = le.getLength();
+       
+       Expressions expl = new Expressions(r);
+
+       
+
+       for(int i=lexp-1; i >= 0 ; i--)
+       {
+
+        Expression ee1 = (Expression) le.getNth(i);
+          
+        dispatch disp1 = new dispatch(r,new object(r,AbstractTable.idtable.addString("self")),
+                       AbstractTable.idtable.lookup(fun.str),
+                        new Expressions(r).appendElement(ee1));
+
+        expl.appendElement(disp1);
+
+
+
+       }
+
+       
+       let ll1 = new let(r,var,typ,oi,new block(r,expl));
+       
+    
+       RESULT = ll1;
+    
+    
+    
+    
+    :}  
+    ;
+
+
+    
+    list_expr
+    ::=
+    list_expr:le COMMA expr:e
+    {: RESULT = le.appendElement(e); :}
+    |
+    controlexpr:e  {: RESULT=(new Expressions(curr_line.pop())).appendElement(e); :}
+    | list_expr:el COMMA error
+    {:if(counterror(((CoolTokenLexer)parser.getScanner()).yytext()))
+    		{ RESULT = el;}
+    		else 
+    		{ RESULT = el;
+            /* oppure ; e basta */ }   :}
+    ;
+
+    
+    let_stmt_list
+    ::= 
+    count_line:rows OBJECTID:id COLON TYPEID:n optional_initialization:oi IN expr:e
+    {: RESULT = new let(rows.pop(),id,n,oi,e); :}
+    |count_line:rows OBJECTID:id COLON TYPEID:n optional_initialization:oi COMMA let_stmt_list:lsl
+    {: RESULT = new let(rows.pop(),id,n,oi,lsl); :}
+    |
+    error IN expr:e
+    |
+    error COMMA let_stmt_list:ls
+    {: if(counterror(((CoolTokenLexer)parser.getScanner()).yytext()))
+    		{ RESULT= ls;}
+    		else 
+    		{ RESULT= ls;
+            /* oppure ; e basta */ }  :}
+    ;
+    
+    optional_initialization
+    ::= ASSIGN expr:e
+    {: RESULT = e; :}
+    | 
+    {:RESULT = new no_expr(0); :}
+    ;
+    
+
+    case_list::=
+    controlcase:le OBJECTID:o COLON TYPEID:t DARROW expr:f SEMI
+    {: RESULT=le.appendElement(new branch(curr_line.pop(),o,t,f)); :}
+    |
+    count_line:rows OBJECTID:o COLON TYPEID:t DARROW expr:f SEMI
+    {: int row = rows.pop(); RESULT=new Cases(row).appendElement(new branch(row,o,t,f)); :}
+    ;
+    
+    controlcase ::= case_list:le
+    {: curr_line.push(curr_lineno()); RESULT = le; :}
+    ;
+
+
+
+    block_list::=
+    block_list:le expr:e SEMI
+    {: 
+       RESULT = le.appendElement(e); :}
+    | block_list:bel error SEMI
+    {: 	if(counterror(((CoolTokenLexer)parser.getScanner()).yytext()))
+     		{ RESULT = bel;}
+    		  else
+     		{ RESULT = bel; /* oppure ; e basta */ } 
+    :}
+    |
+    controlexpr:e SEMI
+    		{: 
+              RESULT=(new Expressions(curr_line.pop())).appendElement(e); :}
+    | count_line:rows error SEMI
+    {: if(counterror(((CoolTokenLexer)parser.getScanner()).yytext()))
+    		{ RESULT = new Expressions(rows.pop());}
+    			 else 
+    		 { RESULT = new Expressions(rows.pop());
+             /* oppure ; e basta */ } 
+     
+      :}
+     ;
+
+    controlexpr ::= expr:e
+    {: 
+       curr_line.push(curr_lineno());RESULT=e; :}
+    ;
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
