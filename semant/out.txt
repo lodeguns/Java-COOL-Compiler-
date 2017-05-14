@@ -1,0 +1,34 @@
+Dag:
+
+    Object -> [IO, String, Bool, Int]
+    Int -> []
+    A -> []
+    IO -> [A, Main]
+    Bool -> []
+    String -> []
+    Main -> []
+Top-sorted Dag:
+[Object, Int, Bool, String, IO, Main, A]
+attr visitato ::: a
+attr visitato ::: b
+addMethodList --> [main]
+=================================
+Dispatch
+
+---------------------------------
+global [Scope 0: {}
+]
+dispatch pix
+ 0
+=================================
+containsMethodList--> [pix]
+=================================
+Dispatch
+
+---------------------------------
+global [Scope 0: {}
+]
+dispatch pix
+ 0
+=================================
+containsMethodList--> [pix, pix]
